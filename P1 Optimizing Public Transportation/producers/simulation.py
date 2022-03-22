@@ -58,14 +58,14 @@ class TimeSimulation:
     def run(self):
         curr_time = datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         logger.info("Beginning simulation, press Ctrl+C to exit at any time")
-        logger.info("Loading kafka connect jdbc source connector")
+        logger.info("loading kafka connect jdbc source connector")
         configure_connector()
 
-        logger.info("Beginning cta train simulation")
+        logger.info("beginning cta train simulation")
         weather = Weather(curr_time.month)
         try:
             while True:
-                logger.debug("Simulation running: %s", curr_time.isoformat())
+                logger.debug("simulation running: %s", curr_time.isoformat())
                 # Send weather on the top of the hour
                 if curr_time.minute == 0:
                     weather.run(curr_time.month)
