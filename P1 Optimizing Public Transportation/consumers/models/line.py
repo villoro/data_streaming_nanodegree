@@ -41,7 +41,9 @@ class Line:
             else:
                 logger.debug("unable to handle previous station due to missing station")
         else:
-            logger.debug("unable to handle previous station due to missing previous info")
+            logger.debug(
+                "unable to handle previous station due to missing previous info"
+            )
 
         station_id = value.get("station_id")
         station = self.stations.get(station_id)
@@ -55,7 +57,8 @@ class Line:
     def process_message(self, message):
         """Given a kafka message, extract data"""
         # TODO: Based on the message topic, call the appropriate handler.
-        if True:  # Set the conditional correctly to the stations Faust Table
+        # Set the conditional correctly to the stations Faust Table
+        if message.topic() == "org.chicago.stations.table.v1":
             try:
                 value = json.loads(message.value())
                 self._handle_station(value)
@@ -72,4 +75,6 @@ class Line:
                 return
             station.process_message(json_data)
         else:
-            logger.debug("unable to find handler for message from topic %s", message.topic)
+            logger.debug(
+                f"unable to find handler for message from topic {message.topic}"
+            )
