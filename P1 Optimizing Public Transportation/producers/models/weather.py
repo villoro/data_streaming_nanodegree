@@ -27,8 +27,8 @@ class Weather(Producer):
     key_schema = None
     value_schema = None
 
-    winter_months = set((0, 1, 2, 3, 10, 11))
-    summer_months = set((6, 7, 8))
+    winter_months = {0, 1, 2, 3, 10, 11}
+    summer_months = {6, 7, 8}
 
     def __init__(self, month):
 
@@ -36,7 +36,7 @@ class Weather(Producer):
         # replicas
 
         super().__init__(
-            "weather",  # TODO: Come up with a better topic name
+            "org.chicago.weather.v1",
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
         )
@@ -85,10 +85,10 @@ class Weather(Producer):
             ],
         }
 
+        # TODO: What URL should be POSTed to?
+        # TODO: What Headers need to bet set?
         resp = requests.post(
-            # TODO: What URL should be POSTed to?
             f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
-            # TODO: What Headers need to bet set?
             headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
             data=json.dumps(data),
         )

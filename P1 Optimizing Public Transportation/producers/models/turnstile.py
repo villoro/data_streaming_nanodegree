@@ -1,5 +1,6 @@
 """Creates a turnstile data producer"""
 import logging
+
 from pathlib import Path
 
 from confluent_kafka import avro
@@ -15,7 +16,9 @@ class Turnstile(Producer):
     key_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/turnstile_key.json")
 
     # TODO: Define this value schema in `schemas/turnstile_value.json, then uncomment the below
-    value_schema = avro.load(f"{Path(__file__).parents[0]}/schemas/turnstile_value.json")
+    value_schema = avro.load(
+        f"{Path(__file__).parents[0]}/schemas/turnstile_value.json"
+    )
 
     def __init__(self, station):
         """Create the Turnstile"""
@@ -30,7 +33,7 @@ class Turnstile(Producer):
         # TODO: Complete the below by deciding on a topic name, number of partitions, and number of
         # replicas
         super().__init__(
-            f"turnstile.{station_name}",  # TODO: Come up with a better topic name
+            f"org.chicago.turnstile.{station_name}.v1",
             key_schema=Turnstile.key_schema,
             value_schema=Turnstile.value_schema,
             num_partitions=1,
