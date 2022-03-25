@@ -37,7 +37,13 @@ class KafkaConsumer:
 
         # TODO: Configure the broker properties below. Make sure to reference the project README
         # and use the Host URL for Kafka and Schema Registry!
-        self.broker_properties = {"bootstrap.servers": BROKER_URL}
+        self.broker_properties = {
+            "bootstrap.servers": BROKER_URL,
+            "group.id": topic_name_pattern,
+            "default.topic.config": {
+                "auto.offset.reset": "earliest" if offset_earliest else "latest"
+            },
+        }
 
         # TODO: Create the Consumer, using the appropriate type.
         if is_avro:
@@ -76,20 +82,19 @@ class KafkaConsumer:
         # Additionally, make sure you return 1 when a message is processed, and 0 when no message
         # is retrieved.
 
-        while True:
-            message = self.consumer.poll(timeout=self.consume_timeout)
+        message = self.consumer.poll(timeout=self.consume_timeout)
 
-            if message is None:
-                logger.warning(f"No message received for '{self.topic_name_pattern}'")
-                return 0
+        if message is None:
+            logger.warning(f"No message received for '{self.topic_name_pattern}'")
+            return 0
 
-            if message.error():
-                logger.error(
-                    f"Error while consuming '{self.topic_name_pattern}': {message.error()}"
-                )
-                return 0
+        if message.error():
+            logger.error(
+                f"Error while consuming '{self.topic_name_pattern}': {message.error()}"
+            )
+            return 0
 
-            return 1
+        return 1
 
     def close(self):
         """Cleans up any open kafka consumers"""
