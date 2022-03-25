@@ -30,7 +30,7 @@ class Station(Producer):
 
         # TODO: Complete the below by deciding on a topic name, number of partitions, and number of
         # replicas
-        topic_name = f"org.chicago.stations.{station_name}.v1"
+        topic_name = f"org.chicago.stations.v1.{station_name}"
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
