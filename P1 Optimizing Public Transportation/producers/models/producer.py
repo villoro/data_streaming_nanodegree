@@ -85,7 +85,7 @@ class Producer:
         # TODO: Write cleanup code for the Producer here
 
         if self.producer is not None:
-            logger.info("Flushing info to close the producer")
+            logger.info(f"Flushing '{self.topic_name}' to close the producer")
             self.producer.flush()
 
     def time_millis(self):

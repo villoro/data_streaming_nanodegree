@@ -2,7 +2,6 @@
 import json
 import logging
 import random
-import urllib.parse
 
 from enum import IntEnum
 from pathlib import Path
@@ -70,17 +69,23 @@ class Weather(Producer):
     def run(self, month):
         self._set_weather(month)
 
+        logger.debug(
+            "Sending weather data to kafka, temp: %s, status: %s",
+            self.temp,
+            self.status.name,
+        )
+
         # TODO: Complete the function by posting a weather event to REST Proxy. Make sure to
         # specify the Avro schemas and verify that you are using the correct Content-Type header.
 
         data = {
             # TODO: Provide key schema, value schema, and records
-            "key_schema": Weather.key_schema,
-            "value_schema": Weather.value_schema,
+            "key_schema": json.dumps(Weather.key_schema),
+            "value_schema": json.dumps(Weather.value_schema),
             "records": [
                 {
                     "key": {"timestamp": self.time_millis()},
-                    "value": {"temperature": self.temp, "weather": self.status.name},
+                    "value": {"temperature": self.temp, "status": self.status.name},
                 }
             ],
         }
@@ -93,9 +98,3 @@ class Weather(Producer):
             data=json.dumps(data),
         )
         resp.raise_for_status()
-
-        logger.debug(
-            "Sent weather data to kafka, temp: %s, status: %s",
-            self.temp,
-            self.status.name,
-        )
