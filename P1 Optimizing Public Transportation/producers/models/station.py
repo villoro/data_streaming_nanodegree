@@ -1,5 +1,6 @@
 """Methods pertaining to loading and configuring CTA "L" station data."""
 import logging
+
 from pathlib import Path
 
 from confluent_kafka import avro
@@ -29,12 +30,11 @@ class Station(Producer):
 
         # TODO: Complete the below by deciding on a topic name, number of partitions, and number of
         # replicas
-
-        topic_name = f"stations.{station_name}"  # TODO: Come up with a better topic name
+        topic_name = f"stations.{station_name}"
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
-            value_schema=Station.value_schema,  # TODO: Uncomment once schema is defined
+            value_schema=Station.value_schema,
             num_partitions=1,
             num_replicas=1,
         )
@@ -57,7 +57,7 @@ class Station(Producer):
             key={"timestamp": self.time_millis()},
             value={
                 "station_id": self.station_id,
-                "train_id": train.id,
+                "train_id": train.train_id,
                 "direction": direction,
                 "line": self.color.name,
                 "train_status": train.status.name,

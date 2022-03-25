@@ -4,7 +4,8 @@ import time
 
 
 from confluent_kafka import avro
-from confluent_kafka.admin import AdminClient, NewTopic
+from confluent_kafka.admin import AdminClient
+from confluent_kafka.admin import NewTopic
 from confluent_kafka.avro import AvroProducer
 
 logger = logging.getLogger(__name__)
@@ -37,11 +38,9 @@ class Producer:
 
         # TODO: Configure the broker properties below. Make sure to reference the project README
         # and use the Host URL for Kafka and Schema Registry!
-        self.broker_properties = {
-            "bootstrap.servers": BROKER_URL,
-            "schema.registry.url": SCHEMA_REGISTRY_URL,
-        }
+        self.broker_properties = {"bootstrap.servers": BROKER_URL}
 
+        # AdminClient does not need SCHEMA_REGISTRY_URL
         self.client = AdminClient(self.broker_properties)
 
         # If the topic does not already exist, try to create it
@@ -50,6 +49,7 @@ class Producer:
             Producer.existing_topics.add(self.topic_name)
 
         # TODO: Configure the AvroProducer
+        self.broker_properties["schema.registry.url"] = SCHEMA_REGISTRY_URL
         self.producer = AvroProducer(
             self.broker_properties,
             default_key_schema=self.key_schema,
@@ -61,6 +61,10 @@ class Producer:
         # TODO: Write code that creates the topic for this producer if it does not already exist on
         # the Kafka Broker.
 
+        if self.topic_name in self.client.list_topics().topics:
+            logger.warning(f"Topic '{self.topic_name}' already exists")
+            return
+
         topic = NewTopic(
             self.topic_name,
             num_partitions=self.num_partitions,
@@ -70,7 +74,7 @@ class Producer:
         for topic, future in self.client.create_topics([topic]).items():
             try:
                 future.result()
-            except Exception:
+            except Exception as e:
                 logger.exception(f"Failed to create topic '{self.topic_name}'")
                 raise e
             else:
