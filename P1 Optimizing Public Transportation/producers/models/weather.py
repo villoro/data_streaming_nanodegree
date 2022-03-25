@@ -35,7 +35,7 @@ class Weather(Producer):
         # replicas
 
         super().__init__(
-            "org.chicago.weather.v1",
+            "org.chicago.cta.weather.v1",
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
         )
