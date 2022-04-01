@@ -36,7 +36,7 @@ spark = SparkSession.builder.appName("redis").getOrCreate()
 spark.sparkContext.setLogLevel("WARN")
 
 # 3. Read stream
-kdf = (
+kdf_redis = (
     spark.readStream.format("kafka")
     .option("kafka.bootstrap.servers", "localhost:9092")
     .option("subscribe", "redis-server")
@@ -46,11 +46,11 @@ kdf = (
 
 # 4. Extract redis_data from the json
 kdf_redis = (
-    kdf.withColumn("value", F.col("value").cast("string"))
-    .select(F.from_json("value", schema_redis))
+    kdf_redis.withColumn("value", F.col("value").cast("string"))
+    .withColumn("value", F.from_json("value", schema_redis))
     .select("value.existType", "value.Ch", "value.Incr", "value.zSetEntries")
     # No need to create a view, but it would be done with
-    .createOrReplaceTempView("redis_data")
+    # .createOrReplaceTempView("redis_data")
 )
 
 # 5. Retrive customer data
@@ -59,7 +59,7 @@ kdf_customers = (
     # spark.sql("SELECT zSetEntries[0].element AS b64_customer FROM redis_data")
     kdf_redis.selectExpr("zSetEntries[0].element AS b64_customer")
     .withColumn("customer", F.unbase64("b64_customer").cast("string"))
-    .select(F.from_json("customer", schema_customer))
+    .withColumn("customer", F.from_json("customer", schema_customer))
     .select("customer.name", "value.email", "value.phone", "value.birthDay")
 )
 
