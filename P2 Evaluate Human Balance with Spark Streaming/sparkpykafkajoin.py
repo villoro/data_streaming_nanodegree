@@ -91,7 +91,7 @@ kdf_scores = (
 # 8. Stream final data
 (
     kdf_scores.join(kdf_customers, F.expr("customer = email"))
-    .select(F.col("customer").alias("key"), F.to_json(F.struct("*")).alias("value"))
+    .selectExpr("cast(customer as string) as key", "to_json(struct(*)) as value")
     .writeStream.format("kafka")
     .option("kafka.bootstrap.servers", "localhost:9092")
     .option("topic", "stedi-score")
