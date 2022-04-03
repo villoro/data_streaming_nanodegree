@@ -38,7 +38,7 @@ spark.sparkContext.setLogLevel("WARN")
 # 3. Read stream
 kdf_redis = (
     spark.readStream.format("kafka")
-    .option("kafka.bootstrap.servers", "localhost:9092")
+    .option("kafka.bootstrap.servers", "kafka:19092")  # udacity -> localhost:9092
     .option("subscribe", "redis-server")
     .option("startingOffsets", "earliest")
     .load()
@@ -60,7 +60,7 @@ kdf_customers = (
     kdf_redis.selectExpr("zSetEntries[0].element AS b64_customer")
     .withColumn("customer", F.unbase64("b64_customer").cast("string"))
     .withColumn("customer", F.from_json("customer", schema_customer))
-    .select("customer.name", "value.email", "value.phone", "value.birthDay")
+    .select("customer.name", "customer.email", "customer.phone", "customer.birthDay")
 )
 
 # 6. Show wanted data from customers

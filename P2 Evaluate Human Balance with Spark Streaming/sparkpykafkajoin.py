@@ -44,7 +44,7 @@ spark.sparkContext.setLogLevel("WARN")
 # 3. Read stream
 kdf_redis = (
     spark.readStream.format("kafka")
-    .option("kafka.bootstrap.servers", "localhost:9092")
+    .option("kafka.bootstrap.servers", "kafka:19092")  # udacity -> localhost:9092
     .option("subscribe", "redis-server")
     .option("startingOffsets", "earliest")
     .load()
@@ -66,7 +66,7 @@ kdf_customers = (
     kdf_redis.selectExpr("zSetEntries[0].element AS b64_customer")
     .withColumn("customer", F.unbase64("b64_customer").cast("string"))
     .withColumn("customer", F.from_json("customer", schema_customer))
-    .select("customer.name", "value.email", "value.phone", "value.birthDay")
+    .select("customer.name", "customer.email", "customer.phone", "customer.birthDay")
     # Extract the data we want
     .where("email IS NOT NULL AND birthDay IS NOT NULL")
     .select("email", F.split("birthDay", "-").getItem(0).alias("birthYear"))
@@ -75,7 +75,7 @@ kdf_customers = (
 # 6. Read events
 kdf_events = (
     spark.readStream.format("kafka")
-    .option("kafka.bootstrap.servers", "localhost:9092")
+    .option("kafka.bootstrap.servers", "kafka:19092")  # udacity -> localhost:9092
     .option("subscribe", "stedi-events")
     .option("startingOffsets", "earliest")
     .load()
@@ -88,14 +88,22 @@ kdf_scores = (
     .select("value.customer", "value.score")  # , "value.riskDate")
 )
 
-# 8. Stream final data
-(
-    kdf_scores.join(kdf_customers, F.expr("customer = email"))
-    .selectExpr("cast(customer as string) as key", "to_json(struct(*)) as value")
-    .writeStream.format("kafka")
-    .option("kafka.bootstrap.servers", "localhost:9092")
-    .option("topic", "stedi-score")
-    .option("checkpointLocation", "/tmp/kafkacheckpoint")
-    .start()
-    .awaitTermination()
+# 8. Create final dataframe
+kdf_out = kdf_scores.join(kdf_customers, F.expr("customer = email")).selectExpr(
+    "cast(customer as string) as key", "to_json(struct(*)) as value"
 )
+
+
+# 9a. Stream final data
+# (
+#     kdf_out.writeStream.outputMode("append")
+#     .format("kafka")
+#     .option("kafka.bootstrap.servers", "kafka:19092") # udacity -> localhost:9092
+#     .option("topic", "stedi-score")
+#     .option("checkpointLocation", "/tmp/kafkacheckpoint")
+#     .start()
+#     .awaitTermination()
+# )
+
+# 9b. Show final data
+kdf_out.writeStream.outputMode("append").format("console").start().awaitTermination()
