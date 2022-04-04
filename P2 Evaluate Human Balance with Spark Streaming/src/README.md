@@ -27,7 +27,7 @@ The STEDI data science team has configured some real-time data sources using Kaf
 - To connect to the redis instance, from the terminal connect to Redis: 
 
 ```
-docker exec -it nd029-c2-apache-spark-and-spark-streaming_redis_1 redis-cli
+docker exec -it p2evaluatehumanbalancewithsparkstreaming_redis_1 redis-cli
 ```
 
 - Type:
@@ -41,7 +41,7 @@ zrange customer 0 -1
 - In another terminal run this command to start monitoring the kafka topic:
 
 ```
-docker exec -it nd029-c2-apache-spark-and-spark-streaming_kafka_1 kafka-console-consumer --bootstrap-server localhost:9092 --topic redis-server
+docker exec -it p2evaluatehumanbalancewithsparkstreaming_kafka_1 kafka-console-consumer --bootstrap-server localhost:9092 --topic redis-server
 ```
 
 - Back in the redis-cli, type: 
@@ -111,9 +111,9 @@ The application development team was not able to complete the feature as the gra
 - Save the Spark startup logs for submission with your solution using the commands below:
 
 ```
-docker logs nd029-c2-apache-spark-and-spark-streaming_spark_1 >& logs/spark-master.log
+docker logs p2evaluatehumanbalancewithsparkstreaming_spark_1 >& logs/spark-master.log
 
-docker logs nd029-c2-apache-spark-and-spark-streaming_spark_1 >& logs/spark-master.log >& logs/spark-worker.log
+docker logs p2evaluatehumanbalancewithsparkstreaming_spark_1 >& logs/spark-master.log >& logs/spark-worker.log
 ```
 
 - Create a new Kafka topic to transmit the complete risk score with birth date, so the data can be viewed in the STEDI application graph
@@ -146,7 +146,7 @@ docker-compose up
 - To monitor the progress of data generated, from a terminal type: 
 
 ```
-docker logs -f nd029-c2-apache-spark-and-spark-streaming_stedi_1
+docker logs -f p2evaluatehumanbalancewithsparkstreaming_stedi_1
 ```
 
 
