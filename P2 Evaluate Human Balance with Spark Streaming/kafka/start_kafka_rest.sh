@@ -1,1 +1,0 @@
-/data/kafka/bin/confluent start kafka-rest

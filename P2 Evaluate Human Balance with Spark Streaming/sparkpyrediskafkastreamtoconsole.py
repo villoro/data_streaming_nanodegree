@@ -1,13 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import from_json, to_json, col, unbase64, base64, split, expr
-from pyspark.sql.types import (
-    StructField,
-    StructType,
-    StringType,
-    BooleanType,
-    ArrayType,
-    DateType,
-)
+from pyspark.sql.types import StructField, StructType, StringType, BooleanType, ArrayType, DateType
 
 # TO-DO: create a StructType for the Kafka redis-server topic which has all changes made to Redis - before Spark 3.0.0, schema inference is not automatic
 
@@ -15,14 +8,14 @@ from pyspark.sql.types import (
 
 # TO-DO: create a StructType for the Kafka stedi-events topic which has the Customer Risk JSON that comes from Redis- before Spark 3.0.0, schema inference is not automatic
 
-# TO-DO: create a spark application object
+#TO-DO: create a spark application object
 
-# TO-DO: set the spark log level to WARN
+#TO-DO: set the spark log level to WARN
 
 # TO-DO: using the spark application object, read a streaming dataframe from the Kafka topic redis-server as the source
 # Be sure to specify the option that reads all the events from the topic including those that were published before you started the spark stream
 
-# TO-DO: cast the value column in the streaming dataframe as a STRING
+# TO-DO: cast the value column in the streaming dataframe as a STRING 
 
 # TO-DO:; parse the single column "value" with a json object in it, like this:
 # +------------+
@@ -44,7 +37,7 @@ from pyspark.sql.types import (
 # "score":0.0
 # }]
 # }
-#
+# 
 # (Note: The Redis Source for Kafka has redundant fields zSetEntries and zsetentries, only one should be parsed)
 #
 # and create separated fields like this:
@@ -71,7 +64,7 @@ from pyspark.sql.types import (
 # |            customer|
 # +--------------------+
 # |{"customerName":"...|
-# +--------------------+
+#+--------------------+
 #
 # with this JSON format: {"customerName":"Sam Test","email":"sam.test@test.com","phone":"8015551212","birthDay":"2001-01-03"}
 
@@ -85,9 +78,9 @@ from pyspark.sql.types import (
 # TO-DO: Select only the birth year and email fields as a new streaming data frame called emailAndBirthYearStreamingDF
 
 # TO-DO: sink the emailAndBirthYearStreamingDF dataframe to the console in append mode
-#
+# 
 # The output should look like this:
-# +--------------------+-----
+# +--------------------+-----               
 # | email         |birthYear|
 # +--------------------+-----
 # |Gail.Spencer@test...|1963|
@@ -101,4 +94,4 @@ from pyspark.sql.types import (
 
 # Run the python script by running the command from the terminal:
 # /home/workspace/submit-redis-kafka-streaming.sh
-# Verify the data looks correct
+# Verify the data looks correct 
