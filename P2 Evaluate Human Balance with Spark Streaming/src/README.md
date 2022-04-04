@@ -137,7 +137,7 @@ CTRL+C
 docker-compose up
 ```
 
-- Log in to the STEDI application: http://localhost:4567
+- Log in to the STEDI application: `http://localhost:4567`
 
 - From the timer page, use the toggle button in the upper right corner to activate simulated user data to see real-time customer and risk score data. Toggle off and on to create additional customers for redis events. Each time you activate it, STEDI creates 30 new customers, and then starts generating risk scores for each one. It takes 4 minutes for each customer to have risk scores generated, however customer data is generated immediately. 
 

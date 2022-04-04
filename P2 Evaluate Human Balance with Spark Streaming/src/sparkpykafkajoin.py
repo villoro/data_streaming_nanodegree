@@ -95,15 +95,15 @@ kdf_out = kdf_scores.join(kdf_customers, F.expr("customer = email")).selectExpr(
 
 
 # 9a. Stream final data
-# (
-#     kdf_out.writeStream.outputMode("append")
-#     .format("kafka")
-#     .option("kafka.bootstrap.servers", "kafka:19092")
-#     .option("topic", "stedi-score")
-#     .option("checkpointLocation", "/tmp/kafkacheckpoint")
-#     .start()
-#     .awaitTermination()
-# )
+(
+    kdf_out.writeStream.outputMode("append")
+    .format("kafka")
+    .option("kafka.bootstrap.servers", "kafka:19092")
+    .option("topic", "stedi-score")
+    .option("checkpointLocation", "/tmp/kafkacheckpoint")
+    .start()
+    .awaitTermination()
+)
 
 # 9b. Show final data
-kdf_out.writeStream.outputMode("append").format("console").start().awaitTermination()
+# kdf_out.writeStream.outputMode("append").format("console").start().awaitTermination()
