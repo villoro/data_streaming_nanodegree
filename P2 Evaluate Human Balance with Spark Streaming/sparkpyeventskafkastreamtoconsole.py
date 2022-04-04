@@ -1,37 +1,44 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import from_json, col, unbase64, base64, split
-from pyspark.sql.types import StructField, StructType, StringType, BooleanType, ArrayType, DateType
+from pyspark.sql import functions as F
+from pyspark.sql import types as T
 
-# TO-DO: using the spark application object, read a streaming dataframe from the Kafka topic stedi-events as the source
-# Be sure to specify the option that reads all the events from the topic including those that were published before you started the spark stream
-                                   
-# TO-DO: cast the value column in the streaming dataframe as a STRING 
+# 1. Declare schemas
+schema_events = T.StructType(
+    [
+        T.StructField("customer", T.StringType()),
+        T.StructField("score", T.FloatType()),
+        T.StructField("riskDate", T.DateType()),
+    ]
+)
 
-# TO-DO: parse the JSON from the single column "value" with a json object in it, like this:
-# +------------+
-# | value      |
-# +------------+
-# |{"custom"...|
-# +------------+
-#
-# and create separated fields like this:
-# +------------+-----+-----------+
-# |    customer|score| riskDate  |
-# +------------+-----+-----------+
-# |"sam@tes"...| -1.4| 2020-09...|
-# +------------+-----+-----------+
-#
-# storing them in a temporary view called CustomerRisk
-# TO-DO: execute a sql statement against a temporary view, selecting the customer and the score from the temporary view, creating a dataframe called customerRiskStreamingDF
-# TO-DO: sink the customerRiskStreamingDF dataframe to the console in append mode
-# 
-# It should output like this:
-#
-# +--------------------+-----
-# |customer           |score|
-# +--------------------+-----+
-# |Spencer.Davis@tes...| 8.0|
-# +--------------------+-----
-# Run the python script by running the command from the terminal:
-# /home/workspace/submit-event-kafka-streaming.sh
-# Verify the data looks correct 
+# 2. Set spark session
+spark = SparkSession.builder.appName("events").getOrCreate()
+spark.sparkContext.setLogLevel("WARN")
+
+# 3. Load stream
+kdf = (
+    spark.readStream.format("kafka")
+    .option("kafka.bootstrap.servers", "kafka:19092")
+    .option("subscribe", "stedi-events")
+    .option("startingOffsets", "earliest")
+    .load()
+)
+
+# 4. Extract risk score
+kdf = (
+    kdf.withColumn("value", F.col("value").cast("string"))
+    .withColumn("value", F.from_json("value", schema_events))
+    .select("value.customer", "value.score")  # , "value.riskDate")
+    # No need to create a view, but it would be done with
+    # .createOrReplaceTempView("customer_risk")
+)
+
+# 5. Show risk score
+(
+    # The view is adding nothing here, but it would work like that:
+    # spark.sql("SELECT customer, score FROM customer_risk")
+    kdf.writeStream.outputMode("append")
+    .format("console")
+    .start()
+    .awaitTermination()
+)
